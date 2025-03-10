@@ -54,6 +54,7 @@ $programs = getPrograms($conn);
         <!-- Edit Form -->
         <form id="editForm" action="update_interview.php" method="POST" class="mt-4">
             <input type="hidden" name="id" value="<?= $interview['id'] ?>">
+            <input type="hidden" name="current_status" value="<?= $interview['status'] ?>">
 
             <!-- Applicant Name -->
             <div>
