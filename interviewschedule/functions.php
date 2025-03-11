@@ -45,7 +45,7 @@ function getInterviewById($conn, $id) {
 }
 
 // Fetch interviews based on program, status, and search term
-function getInterviews($conn, $program = null, $status = 'scheduled', $search = '') {
+function getInterviews($conn, $program = null, $status = null , $search = '', $sort = 'newest') {
     $sql = "SELECT 
                 i.id, 
                 a.name AS applicant, 
@@ -62,10 +62,14 @@ function getInterviews($conn, $program = null, $status = 'scheduled', $search = 
     $params = [];
     $types = "";
     
-    if ($status) {
+    if ($status && $status !== 'date') {
+        if (in_array($status, ['scheduled', 'cancelled'])) {
         $sql .= " AND i.status = ?";
         $params[] = $status;
         $types .= "s";
+        }
+    } else {
+        $sql .= " AND i.status IN ('scheduled', 'cancelled')";
     }
 
     if ($program) {
@@ -80,6 +84,8 @@ function getInterviews($conn, $program = null, $status = 'scheduled', $search = 
         array_push($params, $searchTerm, $searchTerm, $searchTerm);
         $types .= "sss";
     }
+
+    $sql .= ($sort === 'oldest') ? " ORDER BY i.scheduled_time ASC" : " ORDER BY i.scheduled_time DESC";
 
     $stmt = $conn->prepare($sql);
     
