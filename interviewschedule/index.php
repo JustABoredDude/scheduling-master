@@ -7,7 +7,9 @@ $selected_program = $_GET['program'] ?? null;
 $status_filter = $_GET['status'] ?? 'scheduled';
 $search = $_GET['search'] ?? '';
 
-$interviews = getInterviews($conn, $selected_program, $status_filter, $search);
+$sort = $_GET['sort'] ?? 'newest'; 
+$status_filter = ($_GET['status'] ?? 'scheduled') === 'date' ? 'date' : $_GET['status'];
+$interviews = getInterviews($conn, $selected_program, $status_filter, $search, $sort);
 ?>
 
 <!DOCTYPE html>
@@ -57,9 +59,9 @@ $interviews = getInterviews($conn, $selected_program, $status_filter, $search);
             <select id="status" class="border rounded-lg px-3 py-2" onchange="updateFilter('status', this.value)">
                 <option value="scheduled" <?= ($status_filter == 'scheduled') ? 'selected' : '' ?>>Scheduled</option>
                 <option value="cancelled" <?= ($status_filter == 'cancelled') ? 'selected' : '' ?>>Cancelled</option>
-                <option value="date">Date</option>
-                <option value="inverviewer">Interviewer</option>
-                <option value="program">Program</option>
+                <option value="date" <?= ($status_filter == 'date') ? 'selected' : '' ?>>Date</option>
+                <option value="inverviewer" <?= ($status_filter == 'interviewer') ? 'selected' : '' ?>>Interviewer</option>
+                <option value="program" <?= ($status_filter == 'program') ? 'selected' : '' ?>>Program</option>
                 <option value="trash" <?= ($status_filter == 'trash') ? 'selected' : '' ?>>Trash</option>
             </select>
         </div>
@@ -107,7 +109,7 @@ $interviews = getInterviews($conn, $selected_program, $status_filter, $search);
                                     <button onclick="deleteInterview(<?= $interview['id']; ?>)" class="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600">
                                     <img src="assets/delete.png" alt="Delete" title="Delete" class="w-4 h-4">
                                     </button>
-                                <?php elseif ($status_filter === 'cancelled'): ?>
+                                <?php elseif ($status_filter === 'cancelled' || ($status_filter === 'date' && $interview['status'] === 'cancelled')): ?>
                                     <a href="edit_interview.php?id=<?= $interview['id']; ?>" class="px-3 py-1 bg-blue-400 text-white rounded-lg hover:bg-blue-400">
                                         <img src="assets/edit.png" alt="Edit" title="Edit" class="w-4 h-4"></a>
                                     <a href="view_interview.php?id=<?= $interview['id']; ?>" class="px-3 py-1 bg-green-400 text-white rounded-lg hover:bg-green-400">
