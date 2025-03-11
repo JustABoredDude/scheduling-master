@@ -57,9 +57,20 @@ $interviews = getInterviews($conn, $selected_program, $status_filter, $search);
             <select id="status" class="border rounded-lg px-3 py-2" onchange="updateFilter('status', this.value)">
                 <option value="scheduled" <?= ($status_filter == 'scheduled') ? 'selected' : '' ?>>Scheduled</option>
                 <option value="cancelled" <?= ($status_filter == 'cancelled') ? 'selected' : '' ?>>Cancelled</option>
+                <option value="date">Date</option>
+                <option value="inverviewer">Interviewer</option>
+                <option value="program">Program</option>
                 <option value="trash" <?= ($status_filter == 'trash') ? 'selected' : '' ?>>Trash</option>
             </select>
         </div>
+
+        <select id="filter" class="border rounded-lg px-3 py-2">
+            <option value="" disabled selected>Sort</option>
+            <option value="newest">Newest First</option>
+            <option value="oldest">Oldest First</option>
+            <option value="alphabetical">A-Z</option>
+            <option value="reversalphabetical">Z-A</option>
+        </select>
     </div>
 
     <!-- Table -->
@@ -91,7 +102,7 @@ $interviews = getInterviews($conn, $selected_program, $status_filter, $search);
                             <td class="p-3 flex space-x-2">
                                 <?php if ($status_filter === 'trash'): ?>
                                     <button onclick="restoreInterview(<?= $interview['id']; ?>)" class="px-3 py-1 bg-green-400 text-white rounded-lg hover:bg-green-600">
-                                    <img src="assets/restore.png" alt="Delete" title="Restore" class="w-4 h-4">
+                                    <img src="assets/restore.png" alt="Restore" title="Restore" class="w-4 h-4">
                                     </button>
                                     <button onclick="deleteInterview(<?= $interview['id']; ?>)" class="px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600">
                                     <img src="assets/delete.png" alt="Delete" title="Delete" class="w-4 h-4">
@@ -205,6 +216,8 @@ $interviews = getInterviews($conn, $selected_program, $status_filter, $search);
         }
     }
 
+
+    
     document.getElementById('searchForm').addEventListener('keypress', function (event) {
         if (event.key === 'Enter') {
             event.preventDefault();
