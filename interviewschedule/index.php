@@ -6,11 +6,16 @@ require_once 'functions.php';
 $selected_program = $_GET['program'] ?? null;
 $status_filter = $_GET['status'] ?? 'scheduled';
 $search = $_GET['search'] ?? '';
+$sort = $_GET['sort'] ?? 'newest';
 
-$sort = $_GET['sort'] ?? 'newest'; 
 $status_filter = ($_GET['status'] ?? 'scheduled') === 'date' ? 'date' : $_GET['status'];
-$interviews = getInterviews($conn, $selected_program, $status_filter, $search, $sort);
+$interviewer_filter = $_GET['interviewer'] ?? null;
+
+$interviews = getInterviews($conn, $selected_program, $status_filter, $search, $sort, $interviewer_filter);
+
+$interviewers = getInterviewers($conn);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -60,7 +65,7 @@ $interviews = getInterviews($conn, $selected_program, $status_filter, $search, $
                 <option value="scheduled" <?= ($status_filter == 'scheduled') ? 'selected' : '' ?>>Scheduled</option>
                 <option value="cancelled" <?= ($status_filter == 'cancelled') ? 'selected' : '' ?>>Cancelled</option>
                 <option value="date" <?= ($status_filter == 'date') ? 'selected' : '' ?>>Date</option>
-                <option value="inverviewer" <?= ($status_filter == 'interviewer') ? 'selected' : '' ?>>Interviewer</option>
+                <option value="interviewer" <?= ($status_filter == 'interviewer') ? 'selected' : '' ?>>Interviewer</option>
                 <option value="program" <?= ($status_filter == 'program') ? 'selected' : '' ?>>Program</option>
                 <option value="trash" <?= ($status_filter == 'trash') ? 'selected' : '' ?>>Trash</option>
             </select>

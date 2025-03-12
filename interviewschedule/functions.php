@@ -45,7 +45,7 @@ function getInterviewById($conn, $id) {
 }
 
 // Fetch interviews based on program, status, and search term
-function getInterviews($conn, $program = null, $status = null , $search = '', $sort = 'newest') {
+function getInterviews($conn, $program = null, $status = null , $search = '', $sort = 'newest', $interviewer = null) {
     $sql = "SELECT 
                 i.id, 
                 a.name AS applicant, 
@@ -62,7 +62,9 @@ function getInterviews($conn, $program = null, $status = null , $search = '', $s
     $params = [];
     $types = "";
     
-    if ($status && $status !== 'date') {
+    if ($status === 'trash') {
+        $sql .= " AND i.status = 'trash'";
+    } elseif ($status && $status !== 'date' && $status !== 'interviewer') {
         if (in_array($status, ['scheduled', 'cancelled'])) {
         $sql .= " AND i.status = ?";
         $params[] = $status;
@@ -78,14 +80,18 @@ function getInterviews($conn, $program = null, $status = null , $search = '', $s
         $types .= "s";
     }
 
+    if ($interviewer) {
+        $sql .= " AND v.name = ?";
+        $params[] = $interviewer;
+        $types .= "s";
+    }
+
     if (!empty($search)) {
         $sql .= " AND (a.name LIKE ? OR v.name LIKE ? OR p.name LIKE ?)";
         $searchTerm = "%$search%";
         array_push($params, $searchTerm, $searchTerm, $searchTerm);
         $types .= "sss";
     }
-
-    $sql .= ($sort === 'oldest') ? " ORDER BY i.scheduled_time ASC" : " ORDER BY i.scheduled_time DESC";
 
     $stmt = $conn->prepare($sql);
     
@@ -95,4 +101,13 @@ function getInterviews($conn, $program = null, $status = null , $search = '', $s
     
     $stmt->execute();
     return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+    
+    if ($interviewer) {
+        usort($interviews, function ($a, $b) {
+            return strcmp($a['applicant'], $b['applicant']);
+        });
+    }
+
+    return $interviews;
 }
